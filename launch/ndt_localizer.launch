@@ -3,6 +3,9 @@
   <!-- Topics -->
   <param name="/use_sim_time" value="true" />
 
+  <!-- optinal ndt_pose save tum format to file -->
+  <param name="/ndt_pose_file_path" value="/home/xf/Desktop/catkin_slam" />
+
   <arg name="input_sensor_points_topic" default="/filtered_points" doc="Sensor points topic"/>
   <arg name="input_initial_pose_topic" default="/ekf_pose_with_covariance" doc="Initial position topic to align" />
   <arg name="input_map_points_topic" default="/points_map" doc="Map points topic" />

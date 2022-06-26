@@ -5,7 +5,8 @@ NdtLocalizer::NdtLocalizer(ros::NodeHandle &nh, ros::NodeHandle &private_nh):nh_
   key_value_stdmap_["state"] = "Initializing";
   init_params();
 
-	ofs.open("/home/xf/Desktop/catkin_slam/locate_file/ndt_pose.txt", std::ios::out);
+  ROS_WARN("ndt_pose is writed to %s txt file.", (ndt_pose_file_path_+"/ndt_pose.txt").c_str() );
+	ofs.open(ndt_pose_file_path_ + "/ndt_pose.txt", std::ios::out);
 
   // Publishers
   sensor_aligned_pose_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("points_aligned", 10);
@@ -224,9 +225,9 @@ void NdtLocalizer::callback_pointcloud(
   result_pose_stamped_msg.header.frame_id = map_frame_;
   result_pose_stamped_msg.pose = result_pose_msg;
   
-  ROS_WARN("Converged status: %ld ", is_converged);
+  ROS_WARN("Converged status: %d ", is_converged);
   if (is_converged) {
-    ofs << std::endl << "12"
+    ofs << std::endl << std::to_string(sensor_ros_time.toSec())
         << " "  << std::to_string(result_pose_stamped_msg.pose.position.x)
         << " "  << std::to_string(result_pose_stamped_msg.pose.position.y)
         << " "  << std::to_string(result_pose_stamped_msg.pose.position.z)
@@ -279,6 +280,9 @@ void NdtLocalizer::callback_pointcloud(
 void NdtLocalizer::init_params(){
 
   private_nh_.getParam("base_frame", base_frame_);
+
+  private_nh_.param<std::string>("/ndt_pose_file_path", ndt_pose_file_path_,"~");
+
   ROS_INFO("base_frame_id: %s", base_frame_.c_str());
 
   double trans_epsilon = ndt_.getTransformationEpsilon();

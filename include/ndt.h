@@ -74,6 +74,7 @@ private:
     std::map<std::string, std::string> key_value_stdmap_;
 
     std::ofstream ofs;
+    std::string ndt_pose_file_path_;
     
     // function
     void init_params();
