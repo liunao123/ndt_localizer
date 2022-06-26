@@ -5,6 +5,8 @@ NdtLocalizer::NdtLocalizer(ros::NodeHandle &nh, ros::NodeHandle &private_nh):nh_
   key_value_stdmap_["state"] = "Initializing";
   init_params();
 
+	ofs.open("/home/xf/Desktop/catkin_slam/locate_file/ndt_pose.txt", std::ios::out);
+
   // Publishers
   sensor_aligned_pose_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("points_aligned", 10);
   ndt_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("ndt_pose", 10);
@@ -22,7 +24,9 @@ NdtLocalizer::NdtLocalizer(ros::NodeHandle &nh, ros::NodeHandle &private_nh):nh_
   diagnostic_thread_.detach();
 }
 
-NdtLocalizer::~NdtLocalizer() {}
+NdtLocalizer::~NdtLocalizer() {
+  ofs.close();
+  }
 
 void NdtLocalizer::timer_diagnostic()
 {
@@ -188,6 +192,9 @@ void NdtLocalizer::callback_pointcloud(
 
   bool is_converged = true;
   static size_t skipping_publish_num = 0;
+
+  ROS_WARN("converged_param_transform_probability_ status: %lf ", transform_probability);
+
   if (
     iteration_num >= ndt_.getMaximumIterations() + 2 ||
     transform_probability < converged_param_transform_probability_) {
@@ -216,8 +223,17 @@ void NdtLocalizer::callback_pointcloud(
   result_pose_stamped_msg.header.stamp = sensor_ros_time;
   result_pose_stamped_msg.header.frame_id = map_frame_;
   result_pose_stamped_msg.pose = result_pose_msg;
-
+  
+  ROS_WARN("Converged status: %ld ", is_converged);
   if (is_converged) {
+    ofs << std::endl << "12"
+        << " "  << std::to_string(result_pose_stamped_msg.pose.position.x)
+        << " "  << std::to_string(result_pose_stamped_msg.pose.position.y)
+        << " "  << std::to_string(result_pose_stamped_msg.pose.position.z)
+        << " "  << std::to_string(result_pose_stamped_msg.pose.orientation.x)
+        << " "  << std::to_string(result_pose_stamped_msg.pose.orientation.y)
+        << " "  << std::to_string(result_pose_stamped_msg.pose.orientation.z)
+        << " "  << std::to_string(result_pose_stamped_msg.pose.orientation.w) ;
     ndt_pose_pub_.publish(result_pose_stamped_msg);
   }
 

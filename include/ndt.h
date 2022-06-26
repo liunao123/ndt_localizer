@@ -6,6 +6,9 @@
 #include <thread>
 #include <sstream>
 #include <string>
+
+#include <fstream>
+
 #include <ros/ros.h>
 
 #include <diagnostic_msgs/DiagnosticArray.h>
@@ -70,6 +73,8 @@ private:
     std::thread diagnostic_thread_;
     std::map<std::string, std::string> key_value_stdmap_;
 
+    std::ofstream ofs;
+    
     // function
     void init_params();
     void timer_diagnostic();
